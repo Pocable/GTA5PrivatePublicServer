@@ -87,7 +87,7 @@ int main()
 	// If there are no GTA5 games running
 	if (pids.size() == 0) {
 		cout << "GTA5 was not detected as running." << endl;
-		cout << "Press Enter to Continue";
+		cout << "Press any key to continue . . .";
 		cin.ignore();
 		return -2;
 	}
@@ -120,7 +120,7 @@ int main()
 		CreatePrivatePublic(pids[choice]);
 	}
 
-	cout << "Press Enter to Continue" << endl;
+	cout << "Press any key to continue . . ." << endl;
 	cin.ignore();
 	return 0;
 }
