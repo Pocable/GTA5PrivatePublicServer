@@ -1,6 +1,3 @@
-// GTA5PrivatePublicServer.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include "pch.h"
 #include <iostream>
 #include <vector>
@@ -19,7 +16,6 @@ typedef LONG(NTAPI *NtSuspendProcess)(IN HANDLE ProcessHandle);
 
 /*
 *	Get all process ids with the current target executable name.
-*	This is a call unique to windows!
 */
 vector<DWORD> getPIDS(wstring target) {
 	vector<DWORD> pids;
@@ -31,7 +27,7 @@ vector<DWORD> getPIDS(wstring target) {
 		return pids;
 	}
 
-	// Get the negotiation value for all sc2 processes that do not equal our negotiation value.
+	// Get all processes with the exe file matching the provided target.
 	do {
 		if (wstring(entry.szExeFile) == target) {
 			pids.emplace_back(entry.th32ProcessID);
@@ -82,7 +78,7 @@ void CreatePrivatePublic(DWORD pid) {
 int main()
 {
 #ifndef WINDOWS
-	cout << "Non windows systems are currently unsupported." << endl;
+	cout << "System must be windows to run this application." << endl;
 	return -1;
 #endif
 	cout << "Fetching GTA5 pids." << endl;
