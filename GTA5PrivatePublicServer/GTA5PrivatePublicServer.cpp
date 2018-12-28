@@ -81,12 +81,14 @@ int main()
 	cout << "System must be windows to run this application." << endl;
 	return -1;
 #endif
-	cout << "Fetching GTA5 pids." << endl;
+	cout << "Fetching GTA5 process ids..." << endl;
 	vector<DWORD> pids = getPIDS(L"GTA5.exe");
 
 	// If there are no GTA5 games running
 	if (pids.size() == 0) {
 		cout << "GTA5 was not detected as running." << endl;
+		cout << "Press Enter to Continue";
+		cin.ignore();
 		return -2;
 	}
 
@@ -117,5 +119,8 @@ int main()
 		}
 		CreatePrivatePublic(pids[choice]);
 	}
+
+	cout << "Press Enter to Continue" << endl;
+	cin.ignore();
 	return 0;
 }
