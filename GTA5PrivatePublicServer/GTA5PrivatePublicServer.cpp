@@ -37,6 +37,17 @@ vector<DWORD> getPIDS(wstring target) {
 }
 
 /*
+*	Check if a process is still alive
+*	https://stackoverflow.com/questions/1591342/c-how-to-determine-if-a-windows-process-is-running
+*/
+bool IsAlive(DWORD pid) {
+	HANDLE process = OpenProcess(SYNCHRONIZE, FALSE, pid);
+	DWORD ret = WaitForSingleObject(process, 0);
+	CloseHandle(process);
+	return ret == WAIT_TIMEOUT;
+}
+
+/*
 *	Get the HANDLE for the current process ID.
 *	Modified from https://stackoverflow.com/questions/11010165/how-to-suspend-resume-a-process-in-windows
 */
@@ -75,6 +86,27 @@ void CreatePrivatePublic(DWORD pid) {
 	cout << "Finished Suspending!" << endl;
 }
 
+
+/*
+*	Main function for async F7 Suspending.
+*/
+void runtimeLoop(DWORD pid) {
+	cout << "Press 'F7' to Create a Session, 'Pause' to exit the program." << endl;
+	while (!(GetAsyncKeyState(VK_PAUSE) & 0x8000)) {
+
+		// If F7 is pressed, suspend GTA 5
+		if (GetAsyncKeyState(VK_F7) & 0x8000) {
+			CreatePrivatePublic(pid);
+		}
+
+		// If the chosen GTA is no longer running
+		if (!IsAlive(pid)) {
+			cout << "Process has been terminated. Press Enter to Exit . . ." << endl;
+			break;
+		}
+	}
+}
+
 int main()
 {
 #ifndef WINDOWS
@@ -87,15 +119,20 @@ int main()
 	// If there are no GTA5 games running
 	if (pids.size() == 0) {
 		cout << "GTA5 was not detected as running." << endl;
-		cout << "Press enter to continue . . ." << endl;
-		cin.ignore();
-		return -2;
+		cout << "Waiting for GTA to launch. Press 'Pause' to exit the program." << endl;
+		while (pids.size() == 0) {
+			if (GetAsyncKeyState(VK_PAUSE) & 0x8000) {
+				return -2;
+			}
+			pids = getPIDS(L"GTA5.exe");
+		}
+		cout << "GTA5 Detected as Launched!" << endl;
 	}
 
 
 	// If there is exactally one copy.
 	if (pids.size() == 1) {
-		CreatePrivatePublic(pids[0]);
+		runtimeLoop(pids[0]);
 	}
 
 	// If there is more than one copy of GTA5
@@ -117,10 +154,7 @@ int main()
 				break;
 			}
 		}
-		CreatePrivatePublic(pids[choice]);
+		runtimeLoop(pids[choice]);
 	}
-
-	cout << "Press enter to continue . . ." << endl;
-	cin.ignore();
 	return 0;
 }
